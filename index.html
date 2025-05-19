@@ -1,0 +1,47 @@
+<!-- Save as chat.html and host it somewhere -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Chatbot</title>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    #chat { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: auto; }
+    #input { margin-top: 10px; width: 100%; }
+  </style>
+</head>
+<body>
+  <h2>AI Chatbot</h2>
+  <div id="chat"></div>
+  <input type="text" id="input" placeholder="Type a message..." />
+  <script>
+    const input = document.getElementById('input');
+    const chat = document.getElementById('chat');
+
+    input.addEventListener('keydown', async (e) => {
+      if (e.key === 'Enter' && input.value.trim()) {
+        const userMessage = input.value;
+        chat.innerHTML += `<p><strong>You:</strong> ${userMessage}</p>`;
+        input.value = '';
+
+        const res = await fetch("https://api.openai.com/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer YOUR_API_KEY"  // ⚠️ Never expose real API key like this
+          },
+          body: JSON.stringify({
+            model: "gpt-3.5-turbo",
+            messages: [{ role: "user", content: userMessage }]
+          })
+        });
+
+        const data = await res.json();
+        const aiReply = data.choices?.[0]?.message?.content || "Error";
+        chat.innerHTML += `<p><strong>AI:</strong> ${aiReply}</p>`;
+        chat.scrollTop = chat.scrollHeight;
+      }
+    });
+  </script>
+</body>
+</html>
